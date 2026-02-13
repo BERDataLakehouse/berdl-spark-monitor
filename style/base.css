@@ -1,0 +1,271 @@
+/*
+    Spark Monitor JupyterLab Extension Styles
+    Uses var(--jp-*) variables for theme compatibility.
+*/
+
+/* --- Status bar --- */
+
+.spark-monitor-statusbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 8px;
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color1);
+  line-height: var(--jp-private-statusbar-height);
+}
+
+.spark-monitor-statusbar:hover {
+  background: var(--jp-layout-color2);
+}
+
+.spark-monitor-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.spark-monitor-dot--green {
+  background: var(--jp-success-color1, #4caf50);
+}
+
+.spark-monitor-dot--amber {
+  background: var(--jp-warn-color1, #ff9800);
+}
+
+.spark-monitor-dot--red {
+  background: var(--jp-error-color1, #f44336);
+}
+
+.spark-monitor-dot--muted {
+  background: var(--jp-ui-font-color3, #999);
+}
+
+/* --- Sidebar panel --- */
+
+.spark-monitor-panel {
+  padding: 8px;
+  overflow-y: auto;
+  font-size: var(--jp-ui-font-size1);
+  color: var(--jp-ui-font-color1);
+}
+
+/* --- Cluster overview --- */
+
+.spark-monitor-overview {
+  padding: 8px 0;
+}
+
+.spark-monitor-overview-workers {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* --- Resource bar --- */
+
+.spark-monitor-resource-bar {
+  margin-bottom: 6px;
+}
+
+.spark-monitor-resource-bar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--jp-ui-font-size0);
+  margin-bottom: 2px;
+}
+
+.spark-monitor-resource-bar-label {
+  color: var(--jp-ui-font-color2);
+}
+
+.spark-monitor-resource-bar-value {
+  color: var(--jp-ui-font-color1);
+}
+
+.spark-monitor-resource-bar-track {
+  height: 6px;
+  background: var(--jp-layout-color3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.spark-monitor-resource-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.spark-monitor-resource-bar-fill--green {
+  background: var(--jp-success-color1, #4caf50);
+}
+
+.spark-monitor-resource-bar-fill--amber {
+  background: var(--jp-warn-color1, #ff9800);
+}
+
+.spark-monitor-resource-bar-fill--red {
+  background: var(--jp-error-color1, #f44336);
+}
+
+/* --- Collapsible section --- */
+
+.spark-monitor-section {
+  border-top: 1px solid var(--jp-border-color2);
+  margin-top: 8px;
+}
+
+.spark-monitor-section-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 0;
+  font-size: var(--jp-ui-font-size1);
+  font-weight: 600;
+  color: var(--jp-ui-font-color1);
+  text-align: left;
+}
+
+.spark-monitor-section-header:hover {
+  color: var(--jp-ui-font-color0);
+}
+
+.spark-monitor-chevron {
+  display: inline-block;
+  font-size: 8px;
+  transition: transform 0.15s ease;
+}
+
+.spark-monitor-chevron--open {
+  transform: rotate(90deg);
+}
+
+.spark-monitor-section-content {
+  padding: 0 0 8px;
+}
+
+/* --- Executor table --- */
+
+.spark-monitor-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--jp-ui-font-size0);
+}
+
+.spark-monitor-table th {
+  text-align: left;
+  padding: 4px 6px;
+  font-weight: 600;
+  color: var(--jp-ui-font-color2);
+  border-bottom: 1px solid var(--jp-border-color2);
+}
+
+.spark-monitor-table td {
+  padding: 3px 6px;
+  white-space: nowrap;
+}
+
+.spark-monitor-table tr:hover td {
+  background: var(--jp-layout-color2);
+}
+
+/* --- Spill warning --- */
+
+.spark-monitor-spill-warning {
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  background: var(--jp-warn-color3, rgba(255, 152, 0, 0.1));
+  border-left: 3px solid var(--jp-warn-color1, #ff9800);
+  font-size: var(--jp-ui-font-size0);
+  color: var(--jp-warn-color0, #e65100);
+}
+
+/* --- Active stages --- */
+
+.spark-monitor-stage {
+  margin-bottom: 8px;
+}
+
+.spark-monitor-stage-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+  font-size: var(--jp-ui-font-size0);
+}
+
+.spark-monitor-stage-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.spark-monitor-stage-metrics {
+  font-size: var(--jp-ui-font-size0);
+  color: var(--jp-ui-font-color3);
+  margin-top: 2px;
+}
+
+/* --- Query history --- */
+
+.spark-monitor-history-row {
+  border-bottom: 1px solid var(--jp-border-color3);
+}
+
+.spark-monitor-history-row-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  font-size: var(--jp-ui-font-size0);
+  color: var(--jp-ui-font-color1);
+  text-align: left;
+}
+
+.spark-monitor-history-row-header:hover {
+  background: var(--jp-layout-color2);
+}
+
+.spark-monitor-history-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spark-monitor-history-duration {
+  color: var(--jp-ui-font-color3);
+  flex-shrink: 0;
+}
+
+.spark-monitor-history-detail {
+  padding: 4px 0 4px 20px;
+  font-size: var(--jp-ui-font-size0);
+  color: var(--jp-ui-font-color2);
+}
+
+/* --- Text color utilities --- */
+
+.spark-monitor-text--red {
+  color: var(--jp-error-color1, #f44336);
+}
+
+.spark-monitor-text--amber {
+  color: var(--jp-warn-color1, #ff9800);
+}
+
+.spark-monitor-text--green {
+  color: var(--jp-success-color1, #4caf50);
+}

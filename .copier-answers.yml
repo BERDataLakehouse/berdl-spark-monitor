@@ -1,0 +1,15 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v4.5.2
+_src_path: https://github.com/jupyterlab/extension-template
+author_email: engage@kbase.us
+author_name: KBase
+has_ai_rules: false
+has_binder: false
+has_settings: false
+kind: frontend-and-server
+labextension_name: berdl-spark-monitor
+project_short_description: JupyterLab extension for Spark cluster monitoring
+python_name: berdl_spark_monitor
+repository: https://github.com/BERDataLakehouse/berdl-spark-monitor
+test: false
+

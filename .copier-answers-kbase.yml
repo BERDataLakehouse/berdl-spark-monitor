@@ -1,0 +1,6 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 5069b31
+_src_path: https://github.com/kbase/kbase-jlab-overlay
+kind: Frontend and server extension
+labextension_name: berdl-spark-monitor
+python_name: berdl_spark_monitor
