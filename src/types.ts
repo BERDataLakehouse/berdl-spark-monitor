@@ -106,3 +106,19 @@ export interface IStageSummary {
   submissionTime?: string;
   completionTime?: string;
 }
+
+// --- Cluster Management types ---
+
+export interface ISparkClusterConfig {
+  worker_count?: number;
+  worker_cores?: number;
+  worker_memory?: string;
+  master_cores?: number;
+  master_memory?: string;
+}
+
+export interface ISparkClusterCreateResponse {
+  cluster_id: string;
+  master_url: string;
+  master_ui_url: string;
+}

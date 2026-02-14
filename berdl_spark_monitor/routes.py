@@ -208,6 +208,70 @@ class ClusterStatusHandler(SparkMonitorBaseHandler):
             self.write_error_json(str(e))
 
 
+class ClusterCreateHandler(SparkMonitorBaseHandler):
+    """Proxies POST to Spark Cluster Manager /clusters to create a cluster."""
+
+    @tornado.web.authenticated
+    async def post(self):
+        if not self.cluster_manager_url:
+            self.write_error_json("Cluster manager not configured", 503)
+            return
+
+        token = self._require_token()
+        if not token:
+            return
+
+        try:
+            resp = await self.http_client.post(
+                f"{self.cluster_manager_url}/clusters",
+                content=self.request.body,
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                },
+                timeout=30.0,
+            )
+            resp.raise_for_status()
+            self.set_status(resp.status_code)
+            self.set_header("Content-Type", "application/json")
+            self.finish(resp.content)
+        except httpx.HTTPStatusError as e:
+            self.write_error_json(str(e), e.response.status_code)
+        except Exception as e:
+            logger.exception("Error creating cluster")
+            self.write_error_json(str(e))
+
+
+class ClusterDeleteHandler(SparkMonitorBaseHandler):
+    """Proxies DELETE to Spark Cluster Manager /clusters to delete a cluster."""
+
+    @tornado.web.authenticated
+    async def delete(self):
+        if not self.cluster_manager_url:
+            self.write_error_json("Cluster manager not configured", 503)
+            return
+
+        token = self._require_token()
+        if not token:
+            return
+
+        try:
+            resp = await self.http_client.delete(
+                f"{self.cluster_manager_url}/clusters",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=10.0,
+            )
+            resp.raise_for_status()
+            self.set_status(resp.status_code)
+            self.set_header("Content-Type", "application/json")
+            self.finish(resp.content)
+        except httpx.HTTPStatusError as e:
+            self.write_error_json(str(e), e.response.status_code)
+        except Exception as e:
+            logger.exception("Error deleting cluster")
+            self.write_error_json(str(e))
+
+
 class SparkClusterSummaryHandler(SparkMonitorBaseHandler):
     """Proxies to Spark Master /json/ for sidebar cluster overview."""
 
@@ -277,11 +341,19 @@ def setup_handlers(
 
     handlers = []
 
-    # Cluster manager route (status bar data)
+    # Cluster manager routes (status + lifecycle)
     if cluster_manager_url:
         handlers.append((
             url_path_join(base_url, "berdl", "api", "spark-monitor", "status"),
             ClusterStatusHandler,
+        ))
+        handlers.append((
+            url_path_join(base_url, "berdl", "api", "spark-monitor", "cluster", "create"),
+            ClusterCreateHandler,
+        ))
+        handlers.append((
+            url_path_join(base_url, "berdl", "api", "spark-monitor", "cluster", "delete"),
+            ClusterDeleteHandler,
         ))
 
     # Spark Master routes (sidebar data)

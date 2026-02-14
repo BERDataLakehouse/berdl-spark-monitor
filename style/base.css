@@ -328,6 +328,64 @@ li.lm-TabBar-tab.lm-mod-current[data-id='berdl-spark-monitor:panel']
   color: var(--jp-success-color1, #118577);
 }
 
+/* --- Cluster controls --- */
+
+.spark-monitor-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 8px 8px;
+}
+
+.spark-monitor-btn {
+  padding: 2px 10px;
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 3px;
+  background: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color1);
+  font-size: var(--jp-ui-font-size0);
+  cursor: pointer;
+}
+
+.spark-monitor-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.spark-monitor-btn:hover:not(:disabled) {
+  background: var(--jp-layout-color2);
+}
+
+.spark-monitor-btn--danger {
+  border-color: var(--jp-error-color1, #d2232a);
+  color: var(--jp-error-color1, #d2232a);
+}
+
+.spark-monitor-btn--danger:hover:not(:disabled) {
+  background: var(--jp-error-color3, rgb(210 35 42 / 10%));
+}
+
+.spark-monitor-notice {
+  width: 100%;
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-left: 3px solid var(--jp-brand-color1, #026daa);
+  font-size: var(--jp-ui-font-size0);
+  color: var(--jp-ui-font-color2);
+}
+
+.spark-monitor-notice code {
+  font-size: var(--jp-code-font-size0, 0.72rem);
+  background: var(--jp-layout-color2);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.spark-monitor-notice--error {
+  border-left-color: var(--jp-error-color1, #d2232a);
+  color: var(--jp-error-color1, #d2232a);
+}
+
 /* --- Footer --- */
 
 .spark-monitor-footer {
