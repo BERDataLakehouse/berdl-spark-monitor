@@ -1,26 +1,54 @@
 /*
     Spark Monitor JupyterLab Extension Styles
-    Uses var(--jp-*) variables for theme compatibility.
+
+    Uses var(--jp-*) variables for JupyterLab theme compatibility.
+    Fallback values use KBase brand colors (see KBASE_BRAND_GUIDELINES.md):
+      success teal: #118577   (KBase success)
+      warning gold: #FFD200   (KBase Golden Yellow)
+      error red:    #D2232A   (KBase Rainier Cherry Red)
+      info blue:    #026DAA   (KBase primary)
 */
 
-/* --- Status bar --- */
+/* --- Sidebar icon theming --- */
 
-.spark-monitor-statusbar {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0 8px;
-  font-size: var(--jp-ui-font-size1);
-  color: var(--jp-ui-font-color1);
-  line-height: var(--jp-private-statusbar-height);
+[data-icon='berdl-spark-monitor:spark'] path {
+  fill: var(--jp-inverse-layout-color3);
 }
 
-.spark-monitor-statusbar:hover {
-  background: var(--jp-layout-color2);
+/* --- Sidebar tab badge --- */
+
+li.lm-TabBar-tab[data-id='berdl-spark-monitor:panel'] .lm-TabBar-tabIcon {
+  position: relative;
 }
+
+li.lm-TabBar-tab[data-id='berdl-spark-monitor:panel'] .lm-TabBar-tabIcon::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--jp-ui-font-color3, #9d9389);
+}
+
+li.lm-TabBar-tab.lm-mod-current[data-id='berdl-spark-monitor:panel'] .lm-TabBar-tabIcon::after {
+  display: none;
+}
+
+li.lm-TabBar-tab[data-spark-status='green'] .lm-TabBar-tabIcon::after {
+  background: var(--jp-success-color1, #118577);
+}
+
+li.lm-TabBar-tab[data-spark-status='amber'] .lm-TabBar-tabIcon::after {
+  background: var(--jp-warn-color1, #ffd200);
+}
+
+li.lm-TabBar-tab[data-spark-status='red'] .lm-TabBar-tabIcon::after {
+  background: var(--jp-error-color1, #d2232a);
+}
+
+/* --- Status dot --- */
 
 .spark-monitor-dot {
   display: inline-block;
@@ -31,39 +59,54 @@
 }
 
 .spark-monitor-dot--green {
-  background: var(--jp-success-color1, #4caf50);
+  background: var(--jp-success-color1, #118577);
 }
 
 .spark-monitor-dot--amber {
-  background: var(--jp-warn-color1, #ff9800);
+  background: var(--jp-warn-color1, #ffd200);
 }
 
 .spark-monitor-dot--red {
-  background: var(--jp-error-color1, #f44336);
+  background: var(--jp-error-color1, #d2232a);
 }
 
 .spark-monitor-dot--muted {
-  background: var(--jp-ui-font-color3, #999);
+  background: var(--jp-ui-font-color3, #9d9389);
+}
+
+/* --- Section suffix (right-aligned in header) --- */
+
+.spark-monitor-section-suffix {
+  margin-left: auto;
 }
 
 /* --- Sidebar panel --- */
 
 .spark-monitor-panel {
-  padding: 8px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
   font-size: var(--jp-ui-font-size1);
   color: var(--jp-ui-font-color1);
+}
+
+.spark-monitor-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* --- Cluster overview --- */
 
 .spark-monitor-overview {
-  padding: 8px 0;
+  padding: 8px;
 }
 
 .spark-monitor-overview-workers {
-  font-weight: 600;
-  margin-bottom: 8px;
+  font-size: var(--jp-ui-font-size0);
+  color: var(--jp-ui-font-color2);
+  margin-bottom: 6px;
 }
 
 /* --- Resource bar --- */
@@ -88,35 +131,34 @@
 }
 
 .spark-monitor-resource-bar-track {
-  height: 6px;
+  height: 4px;
   background: var(--jp-layout-color3);
-  border-radius: 3px;
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .spark-monitor-resource-bar-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 2px;
   transition: width 0.3s ease;
 }
 
 .spark-monitor-resource-bar-fill--green {
-  background: var(--jp-success-color1, #4caf50);
+  background: var(--jp-success-color1, #118577);
 }
 
 .spark-monitor-resource-bar-fill--amber {
-  background: var(--jp-warn-color1, #ff9800);
+  background: var(--jp-warn-color1, #ffd200);
 }
 
 .spark-monitor-resource-bar-fill--red {
-  background: var(--jp-error-color1, #f44336);
+  background: var(--jp-error-color1, #d2232a);
 }
 
 /* --- Collapsible section --- */
 
 .spark-monitor-section {
   border-top: 1px solid var(--jp-border-color2);
-  margin-top: 8px;
 }
 
 .spark-monitor-section-header {
@@ -124,18 +166,18 @@
   align-items: center;
   gap: 4px;
   width: 100%;
-  background: none;
+  background: var(--jp-layout-color2);
   border: none;
   cursor: pointer;
-  padding: 6px 0;
-  font-size: var(--jp-ui-font-size1);
+  padding: 4px 8px;
+  font-size: var(--jp-ui-font-size0);
   font-weight: 600;
   color: var(--jp-ui-font-color1);
   text-align: left;
 }
 
 .spark-monitor-section-header:hover {
-  color: var(--jp-ui-font-color0);
+  background: var(--jp-layout-color3);
 }
 
 .spark-monitor-chevron {
@@ -149,49 +191,63 @@
 }
 
 .spark-monitor-section-content {
-  padding: 0 0 8px;
+  padding: 0;
 }
 
-/* --- Executor table --- */
+/* --- Executor cards --- */
 
-.spark-monitor-table {
-  width: 100%;
-  border-collapse: collapse;
+.spark-monitor-executor-card {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--jp-border-color3);
   font-size: var(--jp-ui-font-size0);
 }
 
-.spark-monitor-table th {
-  text-align: left;
-  padding: 4px 6px;
+.spark-monitor-executor-card:last-child {
+  border-bottom: none;
+}
+
+.spark-monitor-executor-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1px;
+}
+
+.spark-monitor-executor-card-id {
   font-weight: 600;
+}
+
+.spark-monitor-executor-card-tasks {
   color: var(--jp-ui-font-color2);
-  border-bottom: 1px solid var(--jp-border-color2);
 }
 
-.spark-monitor-table td {
-  padding: 3px 6px;
-  white-space: nowrap;
-}
-
-.spark-monitor-table tr:hover td {
-  background: var(--jp-layout-color2);
+.spark-monitor-executor-card-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  color: var(--jp-ui-font-color2);
 }
 
 /* --- Spill warning --- */
 
 .spark-monitor-spill-warning {
-  padding: 6px 8px;
-  margin-bottom: 6px;
-  background: var(--jp-warn-color3, rgb(255 152 0 / 10%));
-  border-left: 3px solid var(--jp-warn-color1, #ff9800);
+  padding: 4px 8px;
+  margin: 0;
+  background: var(--jp-warn-color3, rgb(255 210 0 / 10%));
+  border-left: 3px solid var(--jp-warn-color1, #ffd200);
   font-size: var(--jp-ui-font-size0);
-  color: var(--jp-warn-color0, #e65100);
+  color: var(--jp-warn-color0, #8f7700);
 }
 
 /* --- Active stages --- */
 
 .spark-monitor-stage {
-  margin-bottom: 8px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--jp-border-color3);
+}
+
+.spark-monitor-stage:last-child {
+  border-bottom: none;
 }
 
 .spark-monitor-stage-header {
@@ -228,7 +284,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 4px 8px;
   font-size: var(--jp-ui-font-size0);
   color: var(--jp-ui-font-color1);
   text-align: left;
@@ -251,7 +307,7 @@
 }
 
 .spark-monitor-history-detail {
-  padding: 4px 0 4px 20px;
+  padding: 2px 8px 6px 26px;
   font-size: var(--jp-ui-font-size0);
   color: var(--jp-ui-font-color2);
 }
@@ -259,13 +315,39 @@
 /* --- Text color utilities --- */
 
 .spark-monitor-text--red {
-  color: var(--jp-error-color1, #f44336);
+  color: var(--jp-error-color1, #d2232a);
 }
 
 .spark-monitor-text--amber {
-  color: var(--jp-warn-color1, #ff9800);
+  color: var(--jp-warn-color1, #b99902);
 }
 
 .spark-monitor-text--green {
-  color: var(--jp-success-color1, #4caf50);
+  color: var(--jp-success-color1, #118577);
+}
+
+/* --- Footer --- */
+
+.spark-monitor-footer {
+  flex-shrink: 0;
+  padding: 8px;
+  font-size: var(--jp-ui-font-size0);
+  color: var(--jp-ui-font-color3);
+  text-align: center;
+  border-top: 1px solid var(--jp-border-color2);
+}
+
+.spark-monitor-footer-logo {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.spark-monitor-footer-logo > svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: text-top;
+}
+
+.spark-monitor-footer path {
+  fill: var(--jp-ui-font-color3);
 }

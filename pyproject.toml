@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-vcs>=0.4.0"]
+requires = ["hatchling>=1.5.0", "jupyterlab>=4.0.0,<5", "hatch-vcs>=0.4.0", "hatch-nodejs-version>=0.3.2"]
 build-backend = "hatchling.build"
 
 [project]
@@ -70,3 +70,8 @@ build_dir = "berdl_spark_monitor/labextension"
 
 [tool.check-wheel-contents]
 ignore = ["W002"]
+
+[dependency-groups]
+dev = [
+    "jupyterlab>=4.5.3",
+]

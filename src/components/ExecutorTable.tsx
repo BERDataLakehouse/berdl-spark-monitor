@@ -25,47 +25,45 @@ export const ExecutorTable: React.FC = () => {
 
   return (
     <div className="spark-monitor-executors">
-      <table className="spark-monitor-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Tasks</th>
-            <th>Memory</th>
-            <th>Disk</th>
-            <th>Shuffle R/W</th>
-            <th>GC</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map(exec => {
-            const gcPct =
-              exec.totalDuration > 0
-                ? (exec.totalGCTime / exec.totalDuration) * 100
-                : 0;
-            return (
-              <tr key={exec.id}>
-                <td>{exec.id}</td>
-                <td>{exec.activeTasks}</td>
-                <td>
-                  {formatBytes(exec.memoryUsed)} / {formatBytes(exec.maxMemory)}
-                </td>
-                <td
-                  className={exec.diskUsed > 0 ? 'spark-monitor-text--red' : ''}
-                >
-                  {formatBytes(exec.diskUsed)}
-                </td>
-                <td>
-                  {formatBytes(exec.totalShuffleRead)} /{' '}
-                  {formatBytes(exec.totalShuffleWrite)}
-                </td>
-                <td className={gcPct > 10 ? 'spark-monitor-text--amber' : ''}>
-                  {formatDuration(exec.totalGCTime)}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {data.map(exec => {
+        const gcPct =
+          exec.totalDuration > 0
+            ? (exec.totalGCTime / exec.totalDuration) * 100
+            : 0;
+        return (
+          <div key={exec.id} className="spark-monitor-executor-card">
+            <div className="spark-monitor-executor-card-header">
+              <span className="spark-monitor-executor-card-id">
+                Executor {exec.id}
+              </span>
+              <span className="spark-monitor-executor-card-tasks">
+                {exec.activeTasks} active / {exec.completedTasks} done
+              </span>
+            </div>
+            <div className="spark-monitor-executor-card-metrics">
+              <span>
+                Mem {formatBytes(exec.memoryUsed)} / {formatBytes(exec.maxMemory)}
+              </span>
+              <span
+                className={
+                  exec.diskUsed > 0 ? 'spark-monitor-text--red' : ''
+                }
+              >
+                Disk {formatBytes(exec.diskUsed)}
+              </span>
+              <span>
+                Shuf {formatBytes(exec.totalShuffleRead)} /{' '}
+                {formatBytes(exec.totalShuffleWrite)}
+              </span>
+              <span
+                className={gcPct > 10 ? 'spark-monitor-text--amber' : ''}
+              >
+                GC {formatDuration(exec.totalGCTime)}
+              </span>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };

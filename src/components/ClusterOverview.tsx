@@ -8,15 +8,16 @@ export const ClusterOverview: React.FC = () => {
   const isVisible = useSparkVisibility();
   const { data, isLoading, isError } = useClusterSummary(isVisible);
 
-  if (isLoading) {
+  if (isLoading || !data) {
+    if (isError) {
+      return (
+        <div className="spark-monitor-overview">
+          Unable to reach Spark Master
+        </div>
+      );
+    }
     return (
       <div className="spark-monitor-overview">Loading cluster info...</div>
-    );
-  }
-
-  if (isError || !data) {
-    return (
-      <div className="spark-monitor-overview">Unable to reach Spark Master</div>
     );
   }
 

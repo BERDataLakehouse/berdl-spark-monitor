@@ -4,8 +4,7 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { ReactWidget } from '@jupyterlab/apputils';
-import { IStatusBar } from '@jupyterlab/statusbar';
-import { PageConfig } from '@jupyterlab/coreutils';
+import { PageConfig, URLExt } from '@jupyterlab/coreutils';
 import { Panel } from '@lumino/widgets';
 import { Message } from '@lumino/messaging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -18,13 +17,16 @@ import {
   COMMAND_OPEN_PANEL,
   sparkMonitorIcon
 } from './constants';
-import { StatusBarWidget } from './components/StatusBarWidget';
 import { SparkMonitorPanel as SparkMonitorPanelComponent } from './components/SparkMonitorPanel';
 
 async function startMockServiceWorker(): Promise<void> {
   try {
     const { worker } = await import('./mocks/browser');
     await worker.start({ onUnhandledRequest: 'bypass', quiet: true });
+    // Warm-up fetch to ensure service worker is intercepting before components mount
+    await fetch(
+      URLExt.join(PageConfig.getBaseUrl(), 'berdl/api/spark-monitor/status')
+    );
     console.log(`${EXTENSION_ID}: Mock Service Worker started`);
   } catch (error) {
     console.error(
@@ -59,10 +61,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: PLUGIN_ID,
   description: 'JupyterLab extension for Spark cluster monitoring',
   autoStart: true,
-  optional: [IStatusBar, ILayoutRestorer],
+  optional: [ILayoutRestorer],
   activate: async (
     app: JupyterFrontEnd,
-    statusBar: IStatusBar | null,
     restorer: ILayoutRestorer | null
   ) => {
     // Gate on server extension enabling the feature
@@ -87,6 +88,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
     });
 
     // --- Sidebar panel ---
+    // visibilityRef bridges Lumino→React: Lumino writes immediately,
+    // React reads on mount to get correct initial state even if
+    // onAfterShow fires before the React tree mounts (layout restore).
+    const visibilityRef = { current: false };
     const setVisibleRef = {
       current: (_v: boolean) => {
         /* replaced by React */
@@ -98,6 +103,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     panel.title.icon = sparkMonitorIcon;
     panel.title.caption = 'Spark Monitor';
     panel.setVisibilityCallback(v => {
+      visibilityRef.current = v;
       setVisibleRef.current(v);
     });
 
@@ -105,9 +111,15 @@ const plugin: JupyterFrontEndPlugin<void> = {
       React.createElement(
         QueryClientProvider,
         { client: queryClient },
-        React.createElement(SparkMonitorPanelComponent, { setVisibleRef })
+        React.createElement(SparkMonitorPanelComponent, {
+          panelId: PANEL_ID,
+          setVisibleRef,
+          visibilityRef
+        })
       )
     );
+    panelContent.node.style.height = '100%';
+    panelContent.node.style.overflow = 'hidden';
     panel.addWidget(panelContent);
     app.shell.add(panel, 'left', { rank: 1100 });
 
@@ -123,24 +135,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       }
     });
 
-    // --- Status bar widget ---
-    if (statusBar) {
-      const statusWidget = ReactWidget.create(
-        React.createElement(
-          QueryClientProvider,
-          { client: queryClient },
-          React.createElement(StatusBarWidget, {
-            onClick: () => app.commands.execute(COMMAND_OPEN_PANEL)
-          })
-        )
-      );
-      statusWidget.id = `${EXTENSION_ID}:status`;
-
-      statusBar.registerStatusItem(statusWidget.id, {
-        item: statusWidget,
-        align: 'left'
-      });
-    }
   }
 };
 

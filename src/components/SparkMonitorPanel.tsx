@@ -5,6 +5,9 @@ import { SpillWarning } from './SpillWarning';
 import { ActiveStages } from './ActiveStages';
 import { QueryHistory } from './QueryHistory';
 import { CollapsibleSection } from './CollapsibleSection';
+import { StatusDot } from './StatusDot';
+import { useTabBadge } from './TabBadge';
+import { sparkMonitorIcon } from '../constants';
 
 /**
  * React context providing sidebar visibility state to hooks.
@@ -17,30 +20,50 @@ export function useSparkVisibility(): boolean {
 }
 
 interface IProps {
+  panelId: string;
   setVisibleRef: { current: (v: boolean) => void };
+  visibilityRef: { current: boolean };
 }
 
-export const SparkMonitorPanel: React.FC<IProps> = ({ setVisibleRef }) => {
-  const [isVisible, setIsVisible] = useState(false);
+export const SparkMonitorPanel: React.FC<IProps> = ({
+  panelId,
+  setVisibleRef,
+  visibilityRef
+}) => {
+  const [isVisible, setIsVisible] = useState(() => visibilityRef.current);
+  useTabBadge(panelId);
 
   useEffect(() => {
     setVisibleRef.current = setIsVisible;
-  }, [setVisibleRef]);
+    // Sync in case onAfterShow fired between render and effect
+    setIsVisible(visibilityRef.current);
+  }, [setVisibleRef, visibilityRef]);
 
   return (
     <SparkVisibilityContext.Provider value={isVisible}>
       <div className="spark-monitor-panel">
-        <ClusterOverview />
-        <CollapsibleSection title="Executors" defaultOpen>
-          <SpillWarning />
-          <ExecutorTable />
-        </CollapsibleSection>
-        <CollapsibleSection title="Active Stages" defaultOpen>
-          <ActiveStages />
-        </CollapsibleSection>
-        <CollapsibleSection title="Recent Queries" defaultOpen={false}>
-          <QueryHistory />
-        </CollapsibleSection>
+        <div className="spark-monitor-panel-content">
+          <CollapsibleSection title="Cluster" defaultOpen suffix={<StatusDot />}>
+            <ClusterOverview />
+          </CollapsibleSection>
+          <CollapsibleSection title="Executors" defaultOpen>
+            <SpillWarning />
+            <ExecutorTable />
+          </CollapsibleSection>
+          <CollapsibleSection title="Active Stages" defaultOpen>
+            <ActiveStages />
+          </CollapsibleSection>
+          <CollapsibleSection title="Recent Queries" defaultOpen={false}>
+            <QueryHistory />
+          </CollapsibleSection>
+        </div>
+        <div className="spark-monitor-footer">
+          Powered by Apache Spark{' '}
+          <sparkMonitorIcon.react
+            tag="span"
+            className="spark-monitor-footer-logo"
+          />
+        </div>
       </div>
     </SparkVisibilityContext.Provider>
   );

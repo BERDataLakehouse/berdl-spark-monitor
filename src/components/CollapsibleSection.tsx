@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 interface IProps {
   title: string;
   defaultOpen?: boolean;
+  suffix?: React.ReactNode;
   children: React.ReactNode;
 }
 
 export const CollapsibleSection: React.FC<IProps> = ({
   title,
   defaultOpen = true,
+  suffix,
   children
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -26,6 +28,7 @@ export const CollapsibleSection: React.FC<IProps> = ({
           &#9654;
         </span>
         <span className="spark-monitor-section-title">{title}</span>
+        {suffix && <span className="spark-monitor-section-suffix">{suffix}</span>}
       </button>
       {isOpen && (
         <div className="spark-monitor-section-content">{children}</div>
