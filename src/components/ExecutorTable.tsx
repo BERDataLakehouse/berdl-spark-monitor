@@ -1,12 +1,18 @@
 import React from 'react';
-import { useExecutors } from '../hooks/useExecutors';
-import { useSparkVisibility } from './SparkMonitorPanel';
 import { formatBytes, formatDuration } from '../utils/format';
+import type { IExecutorSummary } from '../types';
 
-export const ExecutorTable: React.FC = () => {
-  const isVisible = useSparkVisibility();
-  const { data, isLoading, isError } = useExecutors(isVisible);
+interface IProps {
+  executors: IExecutorSummary[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+}
 
+export const ExecutorTable: React.FC<IProps> = ({
+  executors,
+  isLoading,
+  isError
+}) => {
   if (isLoading) {
     return <div className="spark-monitor-executors">Loading executors...</div>;
   }
@@ -17,7 +23,7 @@ export const ExecutorTable: React.FC = () => {
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!executors || executors.length === 0) {
     return (
       <div className="spark-monitor-executors">No active Spark session</div>
     );
@@ -25,7 +31,7 @@ export const ExecutorTable: React.FC = () => {
 
   return (
     <div className="spark-monitor-executors">
-      {data.map(exec => {
+      {executors.map(exec => {
         const gcPct =
           exec.totalDuration > 0
             ? (exec.totalGCTime / exec.totalDuration) * 100
@@ -42,12 +48,11 @@ export const ExecutorTable: React.FC = () => {
             </div>
             <div className="spark-monitor-executor-card-metrics">
               <span>
-                Mem {formatBytes(exec.memoryUsed)} / {formatBytes(exec.maxMemory)}
+                Mem {formatBytes(exec.memoryUsed)} /{' '}
+                {formatBytes(exec.maxMemory)}
               </span>
               <span
-                className={
-                  exec.diskUsed > 0 ? 'spark-monitor-text--red' : ''
-                }
+                className={exec.diskUsed > 0 ? 'spark-monitor-text--red' : ''}
               >
                 Disk {formatBytes(exec.diskUsed)}
               </span>
@@ -55,9 +60,7 @@ export const ExecutorTable: React.FC = () => {
                 Shuf {formatBytes(exec.totalShuffleRead)} /{' '}
                 {formatBytes(exec.totalShuffleWrite)}
               </span>
-              <span
-                className={gcPct > 10 ? 'spark-monitor-text--amber' : ''}
-              >
+              <span className={gcPct > 10 ? 'spark-monitor-text--amber' : ''}>
                 GC {formatDuration(exec.totalGCTime)}
               </span>
             </div>

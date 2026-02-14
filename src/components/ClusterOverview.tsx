@@ -1,6 +1,6 @@
 import React from 'react';
 import { useClusterSummary } from '../hooks/useClusterSummary';
-import { useSparkVisibility } from './SparkMonitorPanel';
+import { useSparkVisibility } from '../contexts/SparkVisibilityContext';
 import { ResourceBar } from './ResourceBar';
 import { formatBytes } from '../utils/format';
 

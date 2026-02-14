@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStages } from '../hooks/useStages';
-import { useSparkVisibility } from './SparkMonitorPanel';
+import { useSparkVisibility } from '../contexts/SparkVisibilityContext';
 import { formatBytes } from '../utils/format';
 
 export const ActiveStages: React.FC = () => {

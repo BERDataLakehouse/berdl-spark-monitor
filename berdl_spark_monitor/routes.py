@@ -25,6 +25,8 @@ _app_id_cache: dict[str, tuple[str, float]] = {}  # master_url -> (app_id, expir
 USERNAME_CACHE_TTL = 300  # 5 minutes
 APP_ID_CACHE_TTL = 60  # 1 minute
 
+HTTPX_CLIENT_KEY = "spark_monitor_httpx_client"
+
 
 def sanitize_k8s_name(name: str) -> str:
     """
@@ -40,7 +42,7 @@ def sanitize_k8s_name(name: str) -> str:
 
 
 class SparkMonitorBaseHandler(APIHandler):
-    """Base handler with shared auth and URL resolution utilities."""
+    """Base handler with shared auth, URL resolution, and proxy utilities."""
 
     @property
     def cluster_manager_url(self) -> Optional[str]:
@@ -68,6 +70,24 @@ class SparkMonitorBaseHandler(APIHandler):
             token = self.get_cookie("kbase_session_backup")
         return token
 
+    @property
+    def http_client(self) -> httpx.AsyncClient:
+        return self.settings[HTTPX_CLIENT_KEY]
+
+    def _require_token(self) -> Optional[str]:
+        """Extract token or write 401 and return None."""
+        token = self.kbase_token
+        if not token:
+            self.write_error_json("No KBase session token", 401)
+        return token
+
+    def _require_namespace(self) -> bool:
+        """Check namespace config or write 503. Returns True if present."""
+        if not self.namespace:
+            self.write_error_json("Namespace not configured", 503)
+            return False
+        return True
+
     async def resolve_username(self, token: str) -> str:
         """Validate token against KBase Auth2 and return username. Cached 5min."""
         now = time.time()
@@ -75,14 +95,13 @@ class SparkMonitorBaseHandler(APIHandler):
         if cached and cached[1] > now:
             return cached[0]
 
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(
-                f"{self.kbase_auth_url}api/V2/me",
-                headers={"Authorization": token},
-                timeout=10.0,
-            )
-            resp.raise_for_status()
-            username = resp.json()["user"]
+        resp = await self.http_client.get(
+            f"{self.kbase_auth_url}api/V2/me",
+            headers={"Authorization": token},
+            timeout=10.0,
+        )
+        resp.raise_for_status()
+        username = resp.json()["user"]
 
         _username_cache[token] = (username, now + USERNAME_CACHE_TTL)
         return username
@@ -99,13 +118,12 @@ class SparkMonitorBaseHandler(APIHandler):
         if cached and cached[1] > now:
             return cached[0]
 
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(
-                f"{master_base_url}/json/",
-                timeout=10.0,
-            )
-            resp.raise_for_status()
-            data = resp.json()
+        resp = await self.http_client.get(
+            f"{master_base_url}/json/",
+            timeout=10.0,
+        )
+        resp.raise_for_status()
+        data = resp.json()
 
         active_apps = data.get("activeapps", [])
         if not active_apps:
@@ -125,6 +143,40 @@ class SparkMonitorBaseHandler(APIHandler):
         self.set_header("Content-Type", "application/json")
         self.finish(json.dumps({"error": message}))
 
+    async def _proxy_app_endpoint(self, path_suffix: str, empty_key: str) -> None:
+        """Shared flow for executor/stage proxying: auth → username → app_id → GET → respond."""
+        if not self._require_namespace():
+            return
+        token = self._require_token()
+        if not token:
+            return
+
+        try:
+            username = await self.resolve_username(token)
+            master_url = self.spark_master_base_url(username)
+            app_id = await self.resolve_app_id(master_url)
+
+            if not app_id:
+                self.write_json({empty_key: [], "message": "No active Spark session"})
+                return
+
+            resp = await self.http_client.get(
+                f"{master_url}/api/v1/applications/{app_id}/{path_suffix}",
+                timeout=10.0,
+            )
+            resp.raise_for_status()
+            self.set_status(resp.status_code)
+            self.set_header("Content-Type", "application/json")
+            self.finish(resp.content)
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 404:
+                self.write_json({empty_key: [], "message": "No active Spark session"})
+            else:
+                self.write_error_json(str(e), e.response.status_code)
+        except Exception as e:
+            logger.exception("Error proxying %s", path_suffix)
+            self.write_error_json(str(e))
+
 
 class ClusterStatusHandler(SparkMonitorBaseHandler):
     """Proxies to Spark Cluster Manager /clusters for status bar data."""
@@ -135,22 +187,20 @@ class ClusterStatusHandler(SparkMonitorBaseHandler):
             self.write_error_json("Cluster manager not configured", 503)
             return
 
-        token = self.kbase_token
+        token = self._require_token()
         if not token:
-            self.write_error_json("No KBase session token", 401)
             return
 
         try:
-            async with httpx.AsyncClient() as client:
-                resp = await client.get(
-                    f"{self.cluster_manager_url}/clusters",
-                    headers={"Authorization": f"Bearer {token}"},
-                    timeout=10.0,
-                )
-                resp.raise_for_status()
-                self.set_status(resp.status_code)
-                self.set_header("Content-Type", "application/json")
-                self.finish(resp.content)
+            resp = await self.http_client.get(
+                f"{self.cluster_manager_url}/clusters",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=10.0,
+            )
+            resp.raise_for_status()
+            self.set_status(resp.status_code)
+            self.set_header("Content-Type", "application/json")
+            self.finish(resp.content)
         except httpx.HTTPStatusError as e:
             self.write_error_json(str(e), e.response.status_code)
         except Exception as e:
@@ -163,28 +213,24 @@ class SparkClusterSummaryHandler(SparkMonitorBaseHandler):
 
     @tornado.web.authenticated
     async def get(self):
-        if not self.namespace:
-            self.write_error_json("Namespace not configured", 503)
+        if not self._require_namespace():
             return
-
-        token = self.kbase_token
+        token = self._require_token()
         if not token:
-            self.write_error_json("No KBase session token", 401)
             return
 
         try:
             username = await self.resolve_username(token)
             master_url = self.spark_master_base_url(username)
 
-            async with httpx.AsyncClient() as client:
-                resp = await client.get(
-                    f"{master_url}/json/",
-                    timeout=10.0,
-                )
-                resp.raise_for_status()
-                self.set_status(resp.status_code)
-                self.set_header("Content-Type", "application/json")
-                self.finish(resp.content)
+            resp = await self.http_client.get(
+                f"{master_url}/json/",
+                timeout=10.0,
+            )
+            resp.raise_for_status()
+            self.set_status(resp.status_code)
+            self.set_header("Content-Type", "application/json")
+            self.finish(resp.content)
         except httpx.HTTPStatusError as e:
             self.write_error_json(str(e), e.response.status_code)
         except Exception as e:
@@ -197,41 +243,7 @@ class SparkExecutorsHandler(SparkMonitorBaseHandler):
 
     @tornado.web.authenticated
     async def get(self):
-        if not self.namespace:
-            self.write_error_json("Namespace not configured", 503)
-            return
-
-        token = self.kbase_token
-        if not token:
-            self.write_error_json("No KBase session token", 401)
-            return
-
-        try:
-            username = await self.resolve_username(token)
-            master_url = self.spark_master_base_url(username)
-            app_id = await self.resolve_app_id(master_url)
-
-            if not app_id:
-                self.write_json({"executors": [], "message": "No active Spark session"})
-                return
-
-            async with httpx.AsyncClient() as client:
-                resp = await client.get(
-                    f"{master_url}/api/v1/applications/{app_id}/executors",
-                    timeout=10.0,
-                )
-                resp.raise_for_status()
-                self.set_status(resp.status_code)
-                self.set_header("Content-Type", "application/json")
-                self.finish(resp.content)
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == 404:
-                self.write_json({"executors": [], "message": "No active Spark session"})
-            else:
-                self.write_error_json(str(e), e.response.status_code)
-        except Exception as e:
-            logger.exception("Error proxying executors")
-            self.write_error_json(str(e))
+        await self._proxy_app_endpoint("executors", "executors")
 
 
 class SparkStagesHandler(SparkMonitorBaseHandler):
@@ -239,41 +251,7 @@ class SparkStagesHandler(SparkMonitorBaseHandler):
 
     @tornado.web.authenticated
     async def get(self):
-        if not self.namespace:
-            self.write_error_json("Namespace not configured", 503)
-            return
-
-        token = self.kbase_token
-        if not token:
-            self.write_error_json("No KBase session token", 401)
-            return
-
-        try:
-            username = await self.resolve_username(token)
-            master_url = self.spark_master_base_url(username)
-            app_id = await self.resolve_app_id(master_url)
-
-            if not app_id:
-                self.write_json({"stages": [], "message": "No active Spark session"})
-                return
-
-            async with httpx.AsyncClient() as client:
-                resp = await client.get(
-                    f"{master_url}/api/v1/applications/{app_id}/stages",
-                    timeout=10.0,
-                )
-                resp.raise_for_status()
-                self.set_status(resp.status_code)
-                self.set_header("Content-Type", "application/json")
-                self.finish(resp.content)
-        except httpx.HTTPStatusError as e:
-            if e.response.status_code == 404:
-                self.write_json({"stages": [], "message": "No active Spark session"})
-            else:
-                self.write_error_json(str(e), e.response.status_code)
-        except Exception as e:
-            logger.exception("Error proxying stages")
-            self.write_error_json(str(e))
+        await self._proxy_app_endpoint("stages", "stages")
 
 
 def setup_handlers(
@@ -292,6 +270,10 @@ def setup_handlers(
     web_app.settings["spark_monitor_namespace"] = namespace
     web_app.settings["spark_monitor_kbase_auth_url"] = kbase_auth_url
     web_app.settings["spark_monitor_spark_master_port"] = spark_master_port
+
+    # Shared httpx client — reused across requests, cleaned up on server shutdown
+    if HTTPX_CLIENT_KEY not in web_app.settings:
+        web_app.settings[HTTPX_CLIENT_KEY] = httpx.AsyncClient()
 
     handlers = []
 

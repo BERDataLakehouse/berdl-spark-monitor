@@ -28,7 +28,9 @@ export const CollapsibleSection: React.FC<IProps> = ({
           &#9654;
         </span>
         <span className="spark-monitor-section-title">{title}</span>
-        {suffix && <span className="spark-monitor-section-suffix">{suffix}</span>}
+        {suffix && (
+          <span className="spark-monitor-section-suffix">{suffix}</span>
+        )}
       </button>
       {isOpen && (
         <div className="spark-monitor-section-content">{children}</div>

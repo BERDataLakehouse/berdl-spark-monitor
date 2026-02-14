@@ -21,7 +21,8 @@ li.lm-TabBar-tab[data-id='berdl-spark-monitor:panel'] .lm-TabBar-tabIcon {
   position: relative;
 }
 
-li.lm-TabBar-tab[data-id='berdl-spark-monitor:panel'] .lm-TabBar-tabIcon::after {
+li.lm-TabBar-tab[data-id='berdl-spark-monitor:panel']
+  .lm-TabBar-tabIcon::after {
   content: '';
   position: absolute;
   top: -10px;
@@ -30,10 +31,6 @@ li.lm-TabBar-tab[data-id='berdl-spark-monitor:panel'] .lm-TabBar-tabIcon::after 
   height: 8px;
   border-radius: 50%;
   background: var(--jp-ui-font-color3, #9d9389);
-}
-
-li.lm-TabBar-tab.lm-mod-current[data-id='berdl-spark-monitor:panel'] .lm-TabBar-tabIcon::after {
-  display: none;
 }
 
 li.lm-TabBar-tab[data-spark-status='green'] .lm-TabBar-tabIcon::after {
@@ -46,6 +43,11 @@ li.lm-TabBar-tab[data-spark-status='amber'] .lm-TabBar-tabIcon::after {
 
 li.lm-TabBar-tab[data-spark-status='red'] .lm-TabBar-tabIcon::after {
   background: var(--jp-error-color1, #d2232a);
+}
+
+li.lm-TabBar-tab.lm-mod-current[data-id='berdl-spark-monitor:panel']
+  .lm-TabBar-tabIcon::after {
+  display: none;
 }
 
 /* --- Status dot --- */

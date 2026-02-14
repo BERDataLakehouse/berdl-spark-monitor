@@ -1,19 +1,19 @@
 import React from 'react';
-import { useExecutors } from '../hooks/useExecutors';
-import { useSparkVisibility } from './SparkMonitorPanel';
+import type { IExecutorSummary } from '../types';
+
+interface IProps {
+  executors: IExecutorSummary[] | undefined;
+}
 
 /**
  * Conditional amber banner shown when any executor spills to disk.
  */
-export const SpillWarning: React.FC = () => {
-  const isVisible = useSparkVisibility();
-  const { data } = useExecutors(isVisible);
-
-  if (!data) {
+export const SpillWarning: React.FC<IProps> = ({ executors }) => {
+  if (!executors) {
     return null;
   }
 
-  const spillingIds = data.filter(e => e.diskUsed > 0).map(e => e.id);
+  const spillingIds = executors.filter(e => e.diskUsed > 0).map(e => e.id);
 
   if (spillingIds.length === 0) {
     return null;

@@ -1,54 +1,44 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ClusterOverview } from './ClusterOverview';
-import { ExecutorTable } from './ExecutorTable';
-import { SpillWarning } from './SpillWarning';
+import { ExecutorSection } from './ExecutorSection';
 import { ActiveStages } from './ActiveStages';
 import { QueryHistory } from './QueryHistory';
 import { CollapsibleSection } from './CollapsibleSection';
 import { StatusDot } from './StatusDot';
 import { useTabBadge } from './TabBadge';
+import { SparkVisibilityContext } from '../contexts/SparkVisibilityContext';
 import { sparkMonitorIcon } from '../constants';
-
-/**
- * React context providing sidebar visibility state to hooks.
- * Default false — hooks won't poll until panel is shown.
- */
-export const SparkVisibilityContext = createContext(false);
-
-export function useSparkVisibility(): boolean {
-  return useContext(SparkVisibilityContext);
-}
+import type { SparkMonitorLuminoPanel } from '../SparkMonitorLuminoPanel';
 
 interface IProps {
   panelId: string;
-  setVisibleRef: { current: (v: boolean) => void };
-  visibilityRef: { current: boolean };
+  luminoPanel: SparkMonitorLuminoPanel;
 }
 
 export const SparkMonitorPanel: React.FC<IProps> = ({
   panelId,
-  setVisibleRef,
-  visibilityRef
+  luminoPanel
 }) => {
-  const [isVisible, setIsVisible] = useState(() => visibilityRef.current);
+  const [isVisible, setIsVisible] = useState(() => luminoPanel.getVisibility());
   useTabBadge(panelId);
 
   useEffect(() => {
-    setVisibleRef.current = setIsVisible;
-    // Sync in case onAfterShow fired between render and effect
-    setIsVisible(visibilityRef.current);
-  }, [setVisibleRef, visibilityRef]);
+    luminoPanel.setVisibilityCallback(setIsVisible);
+  }, [luminoPanel]);
 
   return (
     <SparkVisibilityContext.Provider value={isVisible}>
       <div className="spark-monitor-panel">
         <div className="spark-monitor-panel-content">
-          <CollapsibleSection title="Cluster" defaultOpen suffix={<StatusDot />}>
+          <CollapsibleSection
+            title="Cluster"
+            defaultOpen
+            suffix={<StatusDot />}
+          >
             <ClusterOverview />
           </CollapsibleSection>
           <CollapsibleSection title="Executors" defaultOpen>
-            <SpillWarning />
-            <ExecutorTable />
+            <ExecutorSection />
           </CollapsibleSection>
           <CollapsibleSection title="Active Stages" defaultOpen>
             <ActiveStages />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStages } from '../hooks/useStages';
-import { useSparkVisibility } from './SparkMonitorPanel';
+import { useSparkVisibility } from '../contexts/SparkVisibilityContext';
 import { formatBytes, formatDuration } from '../utils/format';
 import type { IStageSummary } from '../types';
 
