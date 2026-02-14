@@ -1,5 +1,6 @@
 import type {
   ISparkClusterStatus,
+  ISparkClusterCreateResponse,
   ISparkMasterSummary,
   IExecutorSummary,
   IStageSummary
@@ -314,3 +315,9 @@ export const mockStages: IStageSummary[] = [
     completionTime: new Date(now.getTime() - 565000).toISOString()
   }
 ];
+
+export const mockClusterCreateResponse: ISparkClusterCreateResponse = {
+  cluster_id: 'spark-mockuser-abc12345',
+  master_url: 'spark://spark-master-mockuser.jupyterhub:7077',
+  master_ui_url: 'http://spark-master-mockuser.jupyterhub:8090'
+};

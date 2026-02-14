@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ClusterOverview } from './ClusterOverview';
+import { ClusterControls } from './ClusterControls';
 import { ExecutorSection } from './ExecutorSection';
 import { ActiveStages } from './ActiveStages';
 import { QueryHistory } from './QueryHistory';
@@ -36,6 +37,7 @@ export const SparkMonitorPanel: React.FC<IProps> = ({
             suffix={<StatusDot />}
           >
             <ClusterOverview />
+            <ClusterControls />
           </CollapsibleSection>
           <CollapsibleSection title="Executors" defaultOpen>
             <ExecutorSection />
