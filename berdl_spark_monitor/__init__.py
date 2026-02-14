@@ -20,6 +20,20 @@ def _load_jupyter_server_extension(server_app):
     """Register proxy handlers and expose config to the frontend via page_config."""
     from .routes import setup_handlers
 
+    web_app = server_app.web_app
+    page_config = web_app.settings.setdefault("page_config_data", {})
+
+    mock_mode = os.environ.get("SPARK_MONITOR_MOCK_MODE", "").lower() in (
+        "true",
+        "1",
+        "yes",
+    )
+    if mock_mode:
+        page_config["sparkMonitorMockMode"] = "true"
+        page_config["sparkMonitorEnabled"] = "true"
+        server_app.log.info("berdl_spark_monitor: mock mode enabled")
+        return
+
     cluster_manager_url = os.environ.get("SPARK_CLUSTER_MANAGER_API_URL")
     namespace = os.environ.get("BERDL_JUPYTERHUB_NAMESPACE")
 
@@ -35,8 +49,6 @@ def _load_jupyter_server_extension(server_app):
     )
     spark_master_port = os.environ.get("SPARK_MASTER_PORT", "8090")
 
-    web_app = server_app.web_app
-    page_config = web_app.settings.setdefault("page_config_data", {})
     page_config["sparkMonitorEnabled"] = "true"
 
     setup_handlers(

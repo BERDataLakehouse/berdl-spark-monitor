@@ -21,6 +21,19 @@ import {
 import { StatusBarWidget } from './components/StatusBarWidget';
 import { SparkMonitorPanel as SparkMonitorPanelComponent } from './components/SparkMonitorPanel';
 
+async function startMockServiceWorker(): Promise<void> {
+  try {
+    const { worker } = await import('./mocks/browser');
+    await worker.start({ onUnhandledRequest: 'bypass', quiet: true });
+    console.log(`${EXTENSION_ID}: Mock Service Worker started`);
+  } catch (error) {
+    console.error(
+      `${EXTENSION_ID}: Failed to start Mock Service Worker:`,
+      error
+    );
+  }
+}
+
 /**
  * Lumino Panel subclass that tracks visibility for React polling control.
  */
@@ -47,7 +60,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
   description: 'JupyterLab extension for Spark cluster monitoring',
   autoStart: true,
   optional: [IStatusBar, ILayoutRestorer],
-  activate: (
+  activate: async (
     app: JupyterFrontEnd,
     statusBar: IStatusBar | null,
     restorer: ILayoutRestorer | null
@@ -56,6 +69,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
     if (PageConfig.getOption('sparkMonitorEnabled') !== 'true') {
       console.log(`${EXTENSION_ID}: disabled (sparkMonitorEnabled not set)`);
       return;
+    }
+
+    if (PageConfig.getOption('sparkMonitorMockMode') === 'true') {
+      await startMockServiceWorker();
     }
 
     console.log(`${EXTENSION_ID}: activated`);
