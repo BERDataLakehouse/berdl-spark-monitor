@@ -8,7 +8,11 @@ interface IProps {
 
 type DotColor = 'green' | 'amber' | 'red' | 'muted';
 
-function deriveState(data: ISparkClusterStatus | undefined, isLoading: boolean, isError: boolean): { label: string; dot: DotColor } {
+function deriveState(
+  data: ISparkClusterStatus | undefined,
+  isLoading: boolean,
+  isError: boolean
+): { label: string; dot: DotColor } {
   if (isLoading) {
     return { label: 'Spark: ...', dot: 'muted' };
   }

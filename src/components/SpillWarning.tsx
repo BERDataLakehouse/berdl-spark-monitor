@@ -13,9 +13,7 @@ export const SpillWarning: React.FC = () => {
     return null;
   }
 
-  const spillingIds = data
-    .filter(e => e.diskUsed > 0)
-    .map(e => e.id);
+  const spillingIds = data.filter(e => e.diskUsed > 0).map(e => e.id);
 
   if (spillingIds.length === 0) {
     return null;

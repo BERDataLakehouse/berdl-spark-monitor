@@ -12,11 +12,15 @@ export const ExecutorTable: React.FC = () => {
   }
 
   if (isError) {
-    return <div className="spark-monitor-executors">Error loading executors</div>;
+    return (
+      <div className="spark-monitor-executors">Error loading executors</div>
+    );
   }
 
   if (!data || data.length === 0) {
-    return <div className="spark-monitor-executors">No active Spark session</div>;
+    return (
+      <div className="spark-monitor-executors">No active Spark session</div>
+    );
   }
 
   return (
@@ -34,19 +38,25 @@ export const ExecutorTable: React.FC = () => {
         </thead>
         <tbody>
           {data.map(exec => {
-            const gcPct = exec.totalDuration > 0
-              ? (exec.totalGCTime / exec.totalDuration) * 100
-              : 0;
+            const gcPct =
+              exec.totalDuration > 0
+                ? (exec.totalGCTime / exec.totalDuration) * 100
+                : 0;
             return (
               <tr key={exec.id}>
                 <td>{exec.id}</td>
                 <td>{exec.activeTasks}</td>
-                <td>{formatBytes(exec.memoryUsed)} / {formatBytes(exec.maxMemory)}</td>
-                <td className={exec.diskUsed > 0 ? 'spark-monitor-text--red' : ''}>
+                <td>
+                  {formatBytes(exec.memoryUsed)} / {formatBytes(exec.maxMemory)}
+                </td>
+                <td
+                  className={exec.diskUsed > 0 ? 'spark-monitor-text--red' : ''}
+                >
                   {formatBytes(exec.diskUsed)}
                 </td>
                 <td>
-                  {formatBytes(exec.totalShuffleRead)} / {formatBytes(exec.totalShuffleWrite)}
+                  {formatBytes(exec.totalShuffleRead)} /{' '}
+                  {formatBytes(exec.totalShuffleWrite)}
                 </td>
                 <td className={gcPct > 10 ? 'spark-monitor-text--amber' : ''}>
                   {formatDuration(exec.totalGCTime)}

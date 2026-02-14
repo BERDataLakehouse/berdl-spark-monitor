@@ -24,10 +24,7 @@ async function fetchJson<T>(path: string): Promise<T> {
   const url = URLExt.join(PageConfig.getBaseUrl(), API_PREFIX, path);
   const resp = await fetch(url, { credentials: 'same-origin' });
   if (!resp.ok) {
-    throw new SparkApiError(
-      `${resp.status} ${resp.statusText}`,
-      resp.status
-    );
+    throw new SparkApiError(`${resp.status} ${resp.statusText}`, resp.status);
   }
   return resp.json();
 }
@@ -41,9 +38,9 @@ export async function fetchClusterSummary(): Promise<ISparkMasterSummary> {
 }
 
 export async function fetchExecutors(): Promise<IExecutorSummary[]> {
-  const data = await fetchJson<IExecutorSummary[] | { executors: IExecutorSummary[] }>(
-    'app/executors'
-  );
+  const data = await fetchJson<
+    IExecutorSummary[] | { executors: IExecutorSummary[] }
+  >('app/executors');
   // Server returns array directly from Spark, or wrapped object if no active app
   return Array.isArray(data) ? data : data.executors;
 }

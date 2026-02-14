@@ -20,7 +20,9 @@ export const CollapsibleSection: React.FC<IProps> = ({
         onClick={() => setIsOpen(v => !v)}
         aria-expanded={isOpen}
       >
-        <span className={`spark-monitor-chevron ${isOpen ? 'spark-monitor-chevron--open' : ''}`}>
+        <span
+          className={`spark-monitor-chevron ${isOpen ? 'spark-monitor-chevron--open' : ''}`}
+        >
           &#9654;
         </span>
         <span className="spark-monitor-section-title">{title}</span>

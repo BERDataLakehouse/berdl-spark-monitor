@@ -14,7 +14,7 @@ export function useExecutors(isVisible: boolean) {
     queryKey: ['spark-monitor', 'executors'],
     queryFn: fetchExecutors,
     enabled: isVisible,
-    refetchInterval: (query) => {
+    refetchInterval: query => {
       const data = query.state.data;
       if (data && data.some(e => e.activeTasks > 0)) {
         return POLL_EXECUTORS_ACTIVE;

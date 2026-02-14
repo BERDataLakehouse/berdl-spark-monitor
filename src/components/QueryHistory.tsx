@@ -15,7 +15,11 @@ const StageRow: React.FC<{ stage: IStageSummary }> = ({ stage }) => {
         onClick={() => setExpanded(v => !v)}
         aria-expanded={expanded}
       >
-        <span className={isSuccess ? 'spark-monitor-text--green' : 'spark-monitor-text--red'}>
+        <span
+          className={
+            isSuccess ? 'spark-monitor-text--green' : 'spark-monitor-text--red'
+          }
+        >
           {isSuccess ? '\u2713' : '\u2717'}
         </span>
         <span className="spark-monitor-history-name">{stage.name}</span>
@@ -25,9 +29,18 @@ const StageRow: React.FC<{ stage: IStageSummary }> = ({ stage }) => {
       </button>
       {expanded && (
         <div className="spark-monitor-history-detail">
-          <div>Tasks: {stage.numCompleteTasks}/{stage.numTasks} (failed: {stage.numFailedTasks})</div>
-          <div>Input: {formatBytes(stage.inputBytes)} | Output: {formatBytes(stage.outputBytes)}</div>
-          <div>Shuffle R/W: {formatBytes(stage.shuffleReadBytes)} / {formatBytes(stage.shuffleWriteBytes)}</div>
+          <div>
+            Tasks: {stage.numCompleteTasks}/{stage.numTasks} (failed:{' '}
+            {stage.numFailedTasks})
+          </div>
+          <div>
+            Input: {formatBytes(stage.inputBytes)} | Output:{' '}
+            {formatBytes(stage.outputBytes)}
+          </div>
+          <div>
+            Shuffle R/W: {formatBytes(stage.shuffleReadBytes)} /{' '}
+            {formatBytes(stage.shuffleWriteBytes)}
+          </div>
           {stage.diskBytesSpilled > 0 && (
             <div className="spark-monitor-text--amber">
               Disk spill: {formatBytes(stage.diskBytesSpilled)}
@@ -54,10 +67,7 @@ export const QueryHistory: React.FC = () => {
   return (
     <div className="spark-monitor-history">
       {recent.map(stage => (
-        <StageRow
-          key={`${stage.stageId}-${stage.attemptId}`}
-          stage={stage}
-        />
+        <StageRow key={`${stage.stageId}-${stage.attemptId}`} stage={stage} />
       ))}
     </div>
   );

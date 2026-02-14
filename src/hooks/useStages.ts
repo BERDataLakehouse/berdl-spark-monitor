@@ -16,7 +16,7 @@ export function useStages(isVisible: boolean) {
     queryKey: ['spark-monitor', 'stages'],
     queryFn: fetchStages,
     enabled: isVisible,
-    refetchInterval: (q) => {
+    refetchInterval: q => {
       const data = q.state.data;
       if (data && data.some(s => s.status === 'ACTIVE')) {
         return POLL_STAGES_ACTIVE;

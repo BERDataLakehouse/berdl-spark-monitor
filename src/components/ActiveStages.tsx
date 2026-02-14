@@ -22,11 +22,15 @@ export const ActiveStages: React.FC = () => {
   return (
     <div className="spark-monitor-stages">
       {active.map(stage => {
-        const pct = stage.numTasks > 0
-          ? (stage.numCompleteTasks / stage.numTasks) * 100
-          : 0;
+        const pct =
+          stage.numTasks > 0
+            ? (stage.numCompleteTasks / stage.numTasks) * 100
+            : 0;
         return (
-          <div key={`${stage.stageId}-${stage.attemptId}`} className="spark-monitor-stage">
+          <div
+            key={`${stage.stageId}-${stage.attemptId}`}
+            className="spark-monitor-stage"
+          >
             <div className="spark-monitor-stage-header">
               <span className="spark-monitor-stage-name">{stage.name}</span>
               <span className="spark-monitor-stage-progress">
@@ -40,7 +44,10 @@ export const ActiveStages: React.FC = () => {
               />
             </div>
             <div className="spark-monitor-stage-metrics">
-              In: {formatBytes(stage.inputBytes)} | Out: {formatBytes(stage.outputBytes)} | Shuffle: {formatBytes(stage.shuffleReadBytes)}/{formatBytes(stage.shuffleWriteBytes)}
+              In: {formatBytes(stage.inputBytes)} | Out:{' '}
+              {formatBytes(stage.outputBytes)} | Shuffle:{' '}
+              {formatBytes(stage.shuffleReadBytes)}/
+              {formatBytes(stage.shuffleWriteBytes)}
             </div>
           </div>
         );

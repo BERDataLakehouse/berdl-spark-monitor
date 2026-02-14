@@ -6,12 +6,18 @@ import {
 import { ReactWidget } from '@jupyterlab/apputils';
 import { IStatusBar } from '@jupyterlab/statusbar';
 import { PageConfig } from '@jupyterlab/coreutils';
-import { Panel, Widget } from '@lumino/widgets';
+import { Panel } from '@lumino/widgets';
 import { Message } from '@lumino/messaging';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 
-import { EXTENSION_ID, PLUGIN_ID, PANEL_ID, COMMAND_OPEN_PANEL, sparkMonitorIcon } from './constants';
+import {
+  EXTENSION_ID,
+  PLUGIN_ID,
+  PANEL_ID,
+  COMMAND_OPEN_PANEL,
+  sparkMonitorIcon
+} from './constants';
 import { StatusBarWidget } from './components/StatusBarWidget';
 import { SparkMonitorPanel as SparkMonitorPanelComponent } from './components/SparkMonitorPanel';
 
@@ -64,15 +70,17 @@ const plugin: JupyterFrontEndPlugin<void> = {
     });
 
     // --- Sidebar panel ---
-    let isVisible = false;
-    const setVisibleRef = { current: (_v: boolean) => { /* replaced by React */ } };
+    const setVisibleRef = {
+      current: (_v: boolean) => {
+        /* replaced by React */
+      }
+    };
 
     const panel = new SparkMonitorPanel();
     panel.id = PANEL_ID;
     panel.title.icon = sparkMonitorIcon;
     panel.title.caption = 'Spark Monitor';
     panel.setVisibilityCallback(v => {
-      isVisible = v;
       setVisibleRef.current(v);
     });
 

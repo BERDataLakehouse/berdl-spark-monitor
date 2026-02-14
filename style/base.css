@@ -182,7 +182,7 @@
 .spark-monitor-spill-warning {
   padding: 6px 8px;
   margin-bottom: 6px;
-  background: var(--jp-warn-color3, rgba(255, 152, 0, 0.1));
+  background: var(--jp-warn-color3, rgb(255 152 0 / 10%));
   border-left: 3px solid var(--jp-warn-color1, #ff9800);
   font-size: var(--jp-ui-font-size0);
   color: var(--jp-warn-color0, #e65100);

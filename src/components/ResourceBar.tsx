@@ -11,7 +11,12 @@ interface IProps {
  * Reusable progress bar with color thresholds.
  * Green <70%, amber 70-90%, red >90%.
  */
-export const ResourceBar: React.FC<IProps> = ({ label, used, total, formatValue }) => {
+export const ResourceBar: React.FC<IProps> = ({
+  label,
+  used,
+  total,
+  formatValue
+}) => {
   const pct = total > 0 ? (used / total) * 100 : 0;
   const color = pct > 90 ? 'red' : pct > 70 ? 'amber' : 'green';
   const fmt = formatValue ?? String;

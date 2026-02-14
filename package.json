@@ -60,7 +60,8 @@
         "@jupyterlab/coreutils": "^6.0.0",
         "@jupyterlab/services": "^7.0.0",
         "@jupyterlab/statusbar": "^4.0.0",
-        "@jupyterlab/statedb": "^4.0.0",
+        "@jupyterlab/ui-components": "^4.0.0",
+        "@lumino/messaging": "^2.0.0",
         "@lumino/widgets": "^2.0.0",
         "@tanstack/react-query": "^5.68.0",
         "react": "^18.0.0",
@@ -202,7 +203,7 @@
         "rules": {
             "csstree/validator": true,
             "property-no-vendor-prefix": null,
-            "selector-class-pattern": "^([a-z][A-z\\d]*)(-[A-z\\d]+)*$",
+            "selector-class-pattern": "^([a-z][A-z\\d]*)(-{1,2}[A-z\\d]+)*$",
             "selector-no-vendor-prefix": null,
             "value-no-vendor-prefix": null
         }
